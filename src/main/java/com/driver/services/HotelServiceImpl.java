@@ -5,15 +5,18 @@ import com.driver.model.Facility;
 import com.driver.model.Hotel;
 import com.driver.model.User;
 import com.driver.repositories.HotelRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.driver.service.HotelService;
+import com.driver.services.HotelService;
 import java.util.List;
 
 @Service
 public class HotelServiceImpl implements HotelService {
 
+    @Autowired
     private final HotelRepository hotelRepository;
 
+    @Autowired
     public HotelServiceImpl(HotelRepository hotelRepository) {
         this.hotelRepository = hotelRepository;
     }

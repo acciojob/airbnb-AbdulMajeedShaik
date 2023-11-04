@@ -4,9 +4,8 @@ import com.driver.model.Booking;
 import com.driver.model.Facility;
 import com.driver.model.Hotel;
 import com.driver.model.User;
-import com.driver.repositories.HotelRepository;
-import com.driver.service.HotelService;
-import com.driver.services.HotelServiceImpl;
+import com.driver.services.HotelService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,12 +13,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/hotel")
 public class HotelManagementController {
-    HotelService hotelService = new HotelServiceImpl(new HotelRepository());
 
+    private final HotelService hotelService;
 
-//    private final HotelService hotelService;
-    HotelManagementController controller = new HotelManagementController(hotelService);
-
+    @Autowired
     public HotelManagementController(HotelService hotelService) {
         this.hotelService = hotelService;
     }
@@ -46,10 +43,8 @@ public class HotelManagementController {
 
     @GetMapping("/get-bookings-by-a-person/{aadharCard}")
     public List<Booking> getBookings(@PathVariable("aadharCard") Integer aadharCard) {
-        List<Booking> userBookings = controller.getBookings(aadharCard);
-        return userBookings;
+        return hotelService.getBookings(aadharCard);
     }
-
 
     @PutMapping("/update-facilities")
     public Hotel updateFacilities(@RequestBody List<Facility> newFacilities, @RequestParam String hotelName) {

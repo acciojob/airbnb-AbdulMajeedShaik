@@ -6,14 +6,18 @@ import com.driver.model.Hotel;
 import com.driver.model.User;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Repository
 public class HotelRepository {
 
-    private Map<String, Hotel> hotelDb;
-    private Map<Integer, User> userDb;
-    private Map<String, Booking> bookingDb;
+    private final Map<String, Hotel> hotelDb;
+    private final Map<Integer, User> userDb;
+    private final Map<String, Booking> bookingDb;
 
     public HotelRepository() {
         hotelDb = new HashMap<>();
@@ -44,20 +48,24 @@ public class HotelRepository {
         return aadharCard;
     }
 
-
     public String getHotelWithMostFacilities() {
-        String hotelWithMostFacilities = "";
-        int maxFacilities = 0;
+        Map<String, Integer> hotelFacilityCount = new HashMap<>();
 
         for (Hotel hotel : hotelDb.values()) {
-            int numFacilities = hotel.getFacilities().size();
-            if (numFacilities > maxFacilities || (numFacilities == maxFacilities && hotel.getHotelName().compareTo(hotelWithMostFacilities) < 0)) {
-                maxFacilities = numFacilities;
-                hotelWithMostFacilities = hotel.getHotelName();
-            }
+            int facilityCount = hotel.getFacilities().size();
+            hotelFacilityCount.put(hotel.getHotelName(), facilityCount);
         }
 
-        return maxFacilities > 0 ? hotelWithMostFacilities : "";
+        if (hotelFacilityCount.isEmpty()) {
+            return "";
+        }
+
+        String hotelNameWithMostFacilities = hotelFacilityCount.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("");
+
+        return hotelNameWithMostFacilities;
     }
 
     public int bookARoom(Booking booking) {
@@ -97,25 +105,22 @@ public class HotelRepository {
         return userBookings;
     }
 
-
     public Hotel updateFacilities(List<Facility> newFacilities, String hotelName) {
-        if (!hotelDb.containsKey(hotelName) || newFacilities == null) {
-            return null;  // Hotel not found or newFacilities is null
+        Hotel hotel = hotelDb.get(hotelName);
+        if (hotel == null) {
+            return null;
         }
 
-        Hotel hotel = hotelDb.get(hotelName);
-        List<Facility> facilities = hotel.getFacilities();
-
-        for (Facility facility : newFacilities) {
-            if (!facilities.contains(facility)) {
-                facilities.add(facility);
+        List<Facility> existingFacilities = hotel.getFacilities();
+        for (Facility newFacility : newFacilities) {
+            if (!existingFacilities.contains(newFacility)) {
+                existingFacilities.add(newFacility);
             }
         }
 
-        hotel.setFacilities(facilities);
+        hotel.setFacilities(existingFacilities);
         hotelDb.put(hotelName, hotel);
 
         return hotel;
     }
-
 }
